@@ -24,8 +24,36 @@ def solve_part1(input_data: str) -> int:
     return total
 
 def solve_part2(input_data: str) -> int:
-    # Part 2 not implemented yet
-    return 0
+    # Find all instructions (mul, do, don't) in order of appearance
+    pattern = r'(?:mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don\'t\(\))'
+    matches = re.finditer(pattern, input_data)
+    
+    total = 0
+    enabled = True  # Multiplications are enabled by default
+    count = 0
+    
+    for match in matches:
+        instruction = match.group(0)
+        
+        if instruction == "do()":
+            enabled = True
+            continue
+        elif instruction == "don't()":
+            enabled = False
+            continue
+            
+        # Must be a multiplication if we get here
+        if enabled:
+            x = int(match.group(1))
+            y = int(match.group(2))
+            result = x * y
+            total += result
+            count += 1
+            if count < 5:  # Print first few enabled multiplications
+                print(f"Found enabled: mul({x},{y}) = {result}")
+    
+    print(f"Total enabled matches found: {count}")
+    return total
 
 if __name__ == "__main__":
     # Get the absolute path to the input file
