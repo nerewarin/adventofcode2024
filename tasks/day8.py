@@ -74,7 +74,9 @@ Because the topmost A-frequency antenna overlaps with a 0-frequency antinode, th
 
 Calculate the impact of the signal. How many unique locations within the bounds of the map contain an antinode?
 """
+import math
 from collections import defaultdict
+from itertools import combinations
 
 from utils.test_and_run import test, run
 
@@ -113,33 +115,37 @@ def calculate_antinodes_part2(input_map):
             if char.isalnum():  # Check if the character is an antenna
                 antennas[char].append((x, y))
 
-    # Function to check if points are aligned (collinear)
-    def check_aligned(p1, p2, p3):
-        return (p1[0] - p2[0]) * (p2[1] - p3[1]) == (p1[1] - p2[1]) * (p2[0] - p3[0])
+    x_size = len(input_map)
+    y_size = len(input_map[0])
 
-    # Find antinodes for each frequency
+    # Find antinodes for each pair of antennas with the same frequency
     antinodes = set()
     for freq, positions in antennas.items():
-        if len(positions) < 3:
-            continue
-        for i in range(len(positions)):
-            for j in range(i + 1, len(positions)):
-                for k in range(j + 1, len(positions)):
-                    p1 = positions[i]
-                    p2 = positions[j]
-                    p3 = positions[k]
-                    if check_aligned(p1, p2, p3):
-                        # Calculate the potential antinode positions
-                        antinode1 = (2 * p2[0] - p1[0], 2 * p2[1] - p1[1])
-                        antinode2 = (2 * p1[0] - p2[0], 2 * p1[1] - p2[1])
-                        # Add the antinodes to the set if they are within the map bounds
-                        if 0 <= antinode1[0] < len(input_map[0]) and 0 <= antinode1[1] < len(input_map):
-                            antinodes.add(antinode1)
-                        if 0 <= antinode2[0] < len(input_map[0]) and 0 <= antinode2[1] < len(input_map):
-                            antinodes.add(antinode2)
-                        antinodes.add(p1)
-                        antinodes.add(p2)
-                        antinodes.add(p3)
+        for p1, p2 in combinations(positions, 2):
+            x1, y1 = p1
+            x2, y2 = p2
+
+            # Calculate the direction vector
+            vx, vy = x2 - x1, y2 - y1
+
+            # Calculate the gcd of the vector components to normalize the direction
+            gcd = abs(vx) if vy == 0 else abs(vy) if vx == 0 else abs(math.gcd(vx, vy))
+            vx //= gcd
+            vy //= gcd
+
+            # Add all positions in line with the antennas
+            x, y = x1, y1
+            while 0 <= x < x_size and 0 <= y < y_size:
+                antinodes.add((x, y))
+                x += vx
+                y += vy
+
+            # Also add the reverse direction
+            x, y = x1 - vx, y1 - vy
+            while 0 <= x < x_size and 0 <= y < y_size:
+                antinodes.add((x, y))
+                x -= vx
+                y -= vy
 
     # Return the total number of unique antinode positions
     return len(antinodes)
