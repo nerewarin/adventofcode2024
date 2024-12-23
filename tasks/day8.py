@@ -77,8 +77,7 @@ Calculate the impact of the signal. How many unique locations within the bounds 
 import math
 from collections import defaultdict
 from itertools import combinations
-
-from utils.test_and_run import test, run
+from adventofcode2024.utils.test_and_run import test, run
 
 def calculate_antinodes(input_map):
     # Parse the input map and identify the positions of all antennas
