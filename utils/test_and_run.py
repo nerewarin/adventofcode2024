@@ -44,6 +44,8 @@ def test(fn, expected, *args, **kwargs):
     if res != expected:
         raise ValueError(f"fn {fn} returned wrong result: {res=} != {expected=}!")
 
+    print(f"test {fn.__name__} passed")
+
 
 def run(fn, *args, **kwargs):
     """Prints the output of applying function to task data to console"""
